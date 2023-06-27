@@ -1,5 +1,7 @@
+const Article = require("../models/Article");
+
 exports.getArticles = (req, res) => {
-  console.log("Fetch list with all articles");
+  console.log(Article);
 };
 
 exports.getArticle = (req, res) => {
