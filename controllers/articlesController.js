@@ -37,13 +37,9 @@ exports.createArticle = async (req, res) => {
   try {
     const image = req.file;
 
-    const newFilename = "Asdsad";
+    const newFilename = `small-${image.originalname}`;
 
-    await sharp(image.path)
-      .resize(640, 320)
-      .toFormat("jpeg")
-      .jpeg({ quality: 90 })
-      .toFile(`upload/${image.originalname}`);
+    await sharp(image.path).resize(1200).toFormat("jpeg").jpeg({ quality: 90 }).toFile(`upload/${newFilename}`);
 
     const newArticle = new Article({
       title: req.body.title,
@@ -52,8 +48,6 @@ exports.createArticle = async (req, res) => {
       description: req.body.description,
       body: req.body.body,
     });
-
-    console.log(image);
 
     await newArticle.save();
 
@@ -69,10 +63,47 @@ exports.createArticle = async (req, res) => {
   }
 };
 
-exports.editArticle = (req, res) => {
-  console.log("Edit single article");
+exports.editArticle = async (req, res) => {
+  try {
+    const article = await Article.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          title: req.body.title,
+          slug: req.body.slug,
+          imageURL: req.body.imageURL,
+          description: req.body.description,
+          body: req.body.body,
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Article updated successfully",
+      article,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
-exports.deleteArticle = (req, res) => {
-  console.log("Delete single article");
+exports.deleteArticle = async (req, res) => {
+  try {
+    const article = await Article.findOneAndDelete({ _id: req.params.id });
+
+    return res.status(200).json({
+      success: true,
+      message: "Article deleted successfully",
+      article,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
